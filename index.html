@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entry Palette</title>
+  <style>
+    :root {
+      --bg: #f4efe5;
+      --panel: rgba(255, 251, 245, 0.8);
+      --panel-strong: #fffdf9;
+      --line: rgba(46, 58, 46, 0.12);
+      --line-strong: rgba(46, 58, 46, 0.22);
+      --text: #1f2a1f;
+      --muted: #5f6f62;
+      --shadow: 0 24px 60px rgba(61, 47, 24, 0.12);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --font-display: "Trebuchet MS", "Segoe UI", sans-serif;
+      --font-body: "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      --font-mono: "Consolas", "SFMono-Regular", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-body);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 200, 0, 0.28), transparent 32%),
+        radial-gradient(circle at top right, rgba(80, 150, 245, 0.2), transparent 30%),
+        linear-gradient(135deg, #f5efe3 0%, #e8f1e8 52%, #eef5ff 100%);
+      padding: 32px 18px 56px;
+    }
+
+    .shell {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 22px;
+    }
+
+    .hero,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 30px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 22px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -60px -90px auto;
+      width: 240px;
+      height: 240px;
+      background: linear-gradient(135deg, rgba(50, 210, 125, 0.32), rgba(255, 200, 0, 0.18));
+      border-radius: 50%;
+      filter: blur(10px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 16px 0 12px;
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 4.1rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-copy p {
+      margin: 0;
+      max-width: 58ch;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      align-self: end;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      font-family: var(--font-display);
+      margin-bottom: 4px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .hero-card {
+      align-self: stretch;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.68));
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 24px;
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-card .mini-label,
+    .section-title small {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 11px;
+    }
+
+    .hero-preview {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .hero-chip {
+      height: 118px;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      transform: translateY(18px);
+      opacity: 0;
+      animation: rise 0.65s ease forwards;
+    }
+
+    .hero-chip:nth-child(2) { animation-delay: 0.06s; }
+    .hero-chip:nth-child(3) { animation-delay: 0.12s; }
+    .hero-chip:nth-child(4) { animation-delay: 0.18s; }
+    .hero-chip:nth-child(5) { animation-delay: 0.24s; }
+
+    .hero-chip::after {
+      content: "";
+      position: absolute;
+      inset: auto 10px 10px 10px;
+      height: 26px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 22px;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 22px;
+      font-family: var(--font-display);
+      letter-spacing: -0.03em;
+    }
+
+    .official-grid,
+    .mode-grid,
+    .palette-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .official-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .official-card,
+    .mode-button,
+    .swatch {
+      border: 1px solid transparent;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .official-card {
+      border-radius: 18px;
+      padding: 12px;
+      min-height: 112px;
+      color: #fff;
+      cursor: pointer;
+      display: grid;
+      align-content: space-between;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    }
+
+    .official-card:hover,
+    .mode-button:hover,
+    .swatch:hover {
+      transform: translateY(-3px);
+    }
+
+    .official-card.active {
+      border-color: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 12px 24px rgba(31, 42, 31, 0.18);
+    }
+
+    .official-card strong {
+      font-size: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .official-card span,
+    .official-card small {
+      opacity: 0.88;
+      font-size: 12px;
+    }
+
+    .base-picker {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      display: grid;
+      gap: 12px;
+    }
+
+    .base-input-row {
+      display: grid;
+      grid-template-columns: 62px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+    }
+
+    input[type="color"] {
+      width: 62px;
+      height: 62px;
+      border: none;
+      border-radius: 16px;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .base-meta {
+      display: grid;
+      gap: 6px;
+    }
+
+    .base-meta strong {
+      font-size: 20px;
+      font-family: var(--font-display);
+    }
+
+    .base-meta code,
+    .mode-button code,
+    .swatch-body code {
+      font-family: var(--font-mono);
+    }
+
+    .base-meta span,
+    .hint,
+    .swatch-name,
+    .swatch-note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .mode-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mode-button {
+      text-align: left;
+      padding: 14px;
+      border-radius: 18px;
+      background: var(--panel-strong);
+      border-color: var(--line);
+      cursor: pointer;
+      display: grid;
+      gap: 6px;
+    }
+
+    .mode-button.active {
+      border-color: var(--line-strong);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 249, 245, 0.96));
+      box-shadow: 0 14px 30px rgba(61, 47, 24, 0.08);
+    }
+
+    .mode-button strong {
+      font-size: 15px;
+      letter-spacing: -0.02em;
+    }
+
+    .mode-button code {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .workspace {
+      display: grid;
+      gap: 16px;
+    }
+
+    .summary-card {
+      padding: 18px;
+      border-radius: 22px;
+      background:
+        linear-gradient(135deg, rgba(50, 210, 125, 0.08), rgba(255, 255, 255, 0.8)),
+        var(--panel-strong);
+      border: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .summary-card h3 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      font-family: var(--font-display);
+    }
+
+    .summary-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .summary-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ghost-button {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .palette-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .swatch {
+      border-radius: 22px;
+      overflow: hidden;
+      background: var(--panel-strong);
+      border-color: var(--line);
+      cursor: pointer;
+      box-shadow: 0 14px 36px rgba(61, 47, 24, 0.08);
+    }
+
+    .swatch-color {
+      min-height: 210px;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .swatch-color::after {
+      content: "";
+      position: absolute;
+      inset: auto 14px 14px 14px;
+      height: 58px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.18));
+      z-index: -1;
+    }
+
+    .swatch-badge,
+    .swatch-copy {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      background: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+    }
+
+    .swatch-copy {
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .swatch.copied .swatch-copy,
+    .swatch:hover .swatch-copy {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .swatch-body {
+      padding: 16px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .swatch-body code {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .swatch-name {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .swatch-note {
+      min-height: 20px;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @keyframes rise {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .palette-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding-inline: 14px;
+      }
+
+      .hero,
+      .panel {
+        padding: 18px;
+      }
+
+      .hero-stats,
+      .official-grid,
+      .mode-grid,
+      .palette-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-preview {
+        grid-template-columns: repeat(5, 1fr);
+      }
+
+      .swatch-color {
+        min-height: 168px;
+      }
+
+      .summary-card {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">Entry Design Utility</span>
+        <h1>엔트리 감성에 맞는<br>색 조합을 바로 꺼내 쓰기</h1>
+        <p>
+          공식 컬러를 기반으로 유사색, 보색, 삼각 조합, 분할 보색, 사각 조합, 단색 변형을 빠르게 확인할 수 있는
+          팔레트 생성기입니다. 클릭 한 번으로 HEX 코드를 복사하고, 화면에 어울리는 색 흐름을 바로 비교해보세요.
+        </p>
+        <div class="hero-stats">
+          <div class="stat">
+            <strong>5</strong>
+            <span>공식 기본색</span>
+          </div>
+          <div class="stat">
+            <strong>6</strong>
+            <span>조합 모드</span>
+          </div>
+          <div class="stat">
+            <strong>1 Click</strong>
+            <span>HEX 복사</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="hero-card">
+        <span class="mini-label">Quick Preview</span>
+        <div class="hero-preview" id="hero-preview"></div>
+        <div class="hint">
+          현재 선택한 기준색으로 미리보기를 함께 바꿔줍니다. 아래 팔레트 카드에서는 각 색 역할까지 읽을 수 있어요.
+        </div>
+      </aside>
+    </section>
+
+    <section class="layout">
+      <aside class="panel">
+        <div class="section-title">
+          <div>
+            <small>Base Colors</small>
+            <h2>공식 컬러</h2>
+          </div>
+        </div>
+        <div class="official-grid" id="official-grid"></div>
+
+        <div class="base-picker">
+          <div class="section-title" style="margin-bottom: 0;">
+            <div>
+              <small>Custom Tone</small>
+              <h2>직접 고르기</h2>
+            </div>
+          </div>
+          <div class="base-input-row">
+            <input type="color" id="base-color" value="#32D27D" aria-label="기준 색상 선택">
+            <div class="base-meta">
+              <strong id="base-name">Entry Green</strong>
+              <code id="base-hex">#32D27D</code>
+              <span id="base-description">엔트리의 밝고 산뜻한 시작점.</span>
+            </div>
+          </div>
+          <div class="hint">
+            공식 컬러를 누르거나 직접 색을 고르면, 오른쪽 팔레트와 상단 미리보기가 즉시 갱신됩니다.
+          </div>
+        </div>
+      </aside>
+
+      <section class="workspace">
+        <div class="panel">
+          <div class="section-title">
+            <div>
+              <small>Harmony Modes</small>
+              <h2>조합 방식</h2>
+            </div>
+            <div class="hint" id="mode-description">가까운 색상끼리 자연스럽게 이어지는 구성을 만듭니다.</div>
+          </div>
+          <div class="mode-grid" id="mode-grid"></div>
+        </div>
+
+        <div class="summary-card">
+          <div>
+            <small class="mini-label">Palette Summary</small>
+            <h3 id="summary-title">유사색 팔레트</h3>
+            <p id="summary-copy">서로 부드럽게 이어져 배경, 버튼, 포인트를 같은 무드 안에서 설계하기 좋은 조합입니다.</p>
+          </div>
+          <div class="summary-actions">
+            <button class="ghost-button" id="copy-all-button" type="button">전체 HEX 복사</button>
+            <button class="ghost-button" id="shuffle-button" type="button">랜덤 공식색</button>
+          </div>
+        </div>
+
+        <div class="palette-grid" id="palette"></div>
+      </section>
+    </section>
+
+    <div class="footer-note">
+      브라우저에서 바로 열어도 동작하는 단일 파일 구성입니다.
+    </div>
+  </main>
+
+  <script>
+    const officialColors = [
+      { name: "Entry Green", hex: "#32D27D", description: "엔트리의 생동감과 접근성을 살리는 대표 색상입니다." },
+      { name: "Entry Blue", hex: "#5096F5", description: "안정감 있고 학습용 UI에 잘 어울리는 시원한 파랑입니다." },
+      { name: "Entry Purple", hex: "#6E5AE6", description: "기능 강조나 실험적인 분위기를 줄 때 유용한 보라입니다." },
+      { name: "Entry Yellow", hex: "#FFC800", description: "주의, 보상, 하이라이트에 강하게 반응하는 노랑입니다." },
+      { name: "Entry Red", hex: "#FA5536", description: "행동 유도와 경고성 피드백에 힘을 주는 붉은 톤입니다." }
+    ];
+
+    const modeConfig = {
+      analogous: {
+        label: "유사색",
+        code: "Analogous",
+        summaryTitle: "유사색 팔레트",
+        summaryCopy: "서로 부드럽게 이어져 배경, 버튼, 포인트를 같은 무드 안에서 설계하기 좋은 조합입니다.",
+        description: "가까운 색상끼리 자연스럽게 이어지는 구성을 만듭니다."
+      },
+      complementary: {
+        label: "보색",
+        code: "Complementary",
+        summaryTitle: "보색 팔레트",
+        summaryCopy: "기준색과 반대편 색을 대비시켜 버튼과 강조 영역을 눈에 띄게 만들 수 있습니다.",
+        description: "가장 강한 대비를 만드는 정면 충돌형 조합입니다."
+      },
+      triadic: {
+        label: "삼각 조합",
+        code: "Triadic",
+        summaryTitle: "삼각 조합 팔레트",
+        summaryCopy: "세 색이 고르게 떨어져 있어 화면을 다채롭게 만들면서도 균형을 유지합니다.",
+        description: "원형에서 균형 있게 퍼진 세 축을 활용합니다."
+      },
+      split: {
+        label: "분할 보색",
+        code: "Split Complementary",
+        summaryTitle: "분할 보색 팔레트",
+        summaryCopy: "보색만큼 강하지 않으면서도 긴장감 있는 화면을 만들고 싶을 때 잘 맞습니다.",
+        description: "직접적인 보색 대신 양옆을 써서 대비를 부드럽게 만듭니다."
+      },
+      tetradic: {
+        label: "사각 조합",
+        code: "Tetradic",
+        summaryTitle: "사각 조합 팔레트",
+        summaryCopy: "여러 역할의 색이 필요한 대시보드나 교육용 인터페이스에 적합한 다면 구성입니다.",
+        description: "네 방향의 색 관계를 활용해 폭넓은 배색을 만듭니다."
+      },
+      mono: {
+        label: "단색 변형",
+        code: "Monochrome",
+        summaryTitle: "단색 변형 팔레트",
+        summaryCopy: "하나의 색만으로 명도와 채도 차이를 만들어 정돈된 브랜드 톤을 유지합니다.",
+        description: "같은 색상축 안에서 밝기와 깊이만 조절합니다."
+      }
+    };
+
+    let activeMode = "analogous";
+
+    function clamp(value, min = 5, max = 95) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function hexToHsl(hex) {
+      let r = parseInt(hex.slice(1, 3), 16) / 255;
+      let g = parseInt(hex.slice(3, 5), 16) / 255;
+      let b = parseInt(hex.slice(5, 7), 16) / 255;
+
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h;
+      let s;
+      const l = (max + min) / 2;
+
+      if (max === min) {
+        h = 0;
+        s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+        switch (max) {
+          case r:
+            h = (g - b) / d + (g < b ? 6 : 0);
+            break;
+          case g:
+            h = (b - r) / d + 2;
+            break;
+          default:
+            h = (r - g) / d + 4;
+            break;
+        }
+
+        h /= 6;
+      }
+
+      return [h * 360, s * 100, l * 100];
+    }
+
+    function hslToHex(h, s, l) {
+      const hue = ((h % 360) + 360) % 360;
+      const sat = s / 100;
+      const lig = l / 100;
+      const a = sat * Math.min(lig, 1 - lig);
+
+      const calc = (n) => {
+        const k = (n + hue / 30) % 12;
+        const color = lig - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color).toString(16).padStart(2, "0");
+      };
+
+      return `#${calc(0)}${calc(8)}${calc(4)}`.toUpperCase();
+    }
+
+    function getContrastColor(hex) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      return luminance > 0.68 ? "#1F2A1F" : "#FFFFFF";
+    }
+
+    function generatePalette(hex, mode) {
+      const [h, s, l] = hexToHsl(hex);
+
+      switch (mode) {
+        case "analogous":
+          return [
+            { hex: hslToHex(h - 28, s, clamp(l + 4)), name: "왼쪽 흐름", note: "배경이나 넓은 면에 부드럽게 깔기 좋습니다." },
+            { hex: hslToHex(h - 14, clamp(s - 4), clamp(l + 8)), name: "서브 톤", note: "카드, 배지, 보조 버튼에 잘 어울립니다." },
+            { hex: hex.toUpperCase(), name: "기준색", note: "브랜드 포인트나 핵심 동작에 사용하세요." },
+            { hex: hslToHex(h + 14, clamp(s + 2), clamp(l + 6)), name: "확장 톤", note: "아이콘, 링크, 강조 라벨에 적합합니다." },
+            { hex: hslToHex(h + 28, s, clamp(l - 2)), name: "오른쪽 흐름", note: "여백을 살리면서 화면에 리듬을 줍니다." }
+          ];
+        case "complementary":
+          return [
+            { hex: hslToHex(h, clamp(s - 22), clamp(l + 24)), name: "부드러운 기준색", note: "배경 또는 보조 레이어용 밝은 톤입니다." },
+            { hex: hex.toUpperCase(), name: "기준색", note: "주요 버튼과 핵심 액션에 가장 잘 맞습니다." },
+            { hex: hslToHex(h, clamp(s + 8), clamp(l - 18)), name: "짙은 기준색", note: "텍스트 대비가 필요한 강조 블록에 적합합니다." },
+            { hex: hslToHex(h + 180, clamp(s - 4), clamp(l + 10)), name: "보색 라이트", note: "태그, 알림, 포인트 장식에 사용하기 좋습니다." },
+            { hex: hslToHex(h + 180, s, l), name: "보색", note: "시선을 끌어야 하는 반대축 강조에 쓰세요." }
+          ];
+        case "triadic":
+          return [
+            { hex: hex.toUpperCase(), name: "기준색", note: "전체 무드를 정하는 시작점입니다." },
+            { hex: hslToHex(h + 120, s, l), name: "삼각 2", note: "일러스트, 차트, 구분 섹션에 잘 맞습니다." },
+            { hex: hslToHex(h + 240, s, l), name: "삼각 3", note: "대조 포인트를 만들되 균형을 잃지 않습니다." },
+            { hex: hslToHex(h + 60, clamp(s - 12), clamp(l + 16)), name: "브리지 톤", note: "중간 연결색으로 사용하면 화면이 자연스럽습니다." },
+            { hex: hslToHex(h + 180, clamp(s - 18), clamp(l + 22)), name: "에어 톤", note: "배경이나 비활성 영역용으로 부드럽게 깔 수 있습니다." }
+          ];
+        case "split":
+          return [
+            { hex: hex.toUpperCase(), name: "기준색", note: "화면의 중심을 잡아주는 메인 톤입니다." },
+            { hex: hslToHex(h + 150, s, l), name: "분할 보색 A", note: "보색보다 덜 공격적이면서 충분한 대비를 줍니다." },
+            { hex: hslToHex(h + 210, s, l), name: "분할 보색 B", note: "두 번째 강조축이나 상태색 역할에 적합합니다." },
+            { hex: hslToHex(h, clamp(s - 16), clamp(l + 20)), name: "라이트 베이스", note: "섹션 배경, 칩, 비활성 패널에 활용하세요." },
+            { hex: hslToHex(h, clamp(s + 6), clamp(l - 16)), name: "딥 베이스", note: "진한 버튼, 그래프 포인트, 강조 제목에 유용합니다." }
+          ];
+        case "tetradic":
+          return [
+            { hex: hex.toUpperCase(), name: "기준색", note: "첫 번째 시선 유도용 색입니다." },
+            { hex: hslToHex(h + 90, s, l), name: "사각 2", note: "구분 섹션이나 서브 CTA에 힘을 줍니다." },
+            { hex: hslToHex(h + 180, s, l), name: "사각 3", note: "강한 대비 포인트가 필요한 위치에 적합합니다." },
+            { hex: hslToHex(h + 270, s, l), name: "사각 4", note: "정보를 추가로 구분할 때 시각적 폭을 넓혀줍니다." },
+            { hex: hslToHex(h, clamp(s - 24), clamp(l + 28)), name: "정리 톤", note: "다채로운 팔레트를 안정적으로 묶어주는 완충 역할입니다." }
+          ];
+        default:
+          return [
+            { hex: hslToHex(h, clamp(s - 12), clamp(l + 34)), name: "가장 밝은 톤", note: "배경 전체 또는 빈 영역 채우기에 적합합니다." },
+            { hex: hslToHex(h, clamp(s - 6), clamp(l + 18)), name: "라이트 톤", note: "보조 카드나 안내 박스에 부드럽게 적용하세요." },
+            { hex: hex.toUpperCase(), name: "기준색", note: "브랜드 아이덴티티를 유지하는 중심 색상입니다." },
+            { hex: hslToHex(h, clamp(s + 4), clamp(l - 16)), name: "딥 톤", note: "텍스트 옆 아이콘, 버튼 호버, 구분선 강조에 좋습니다." },
+            { hex: hslToHex(h, clamp(s + 8), clamp(l - 32)), name: "가장 짙은 톤", note: "강한 대비와 깊이를 주는 마지막 포인트입니다." }
+          ];
+      }
+    }
+
+    function createOfficialGrid() {
+      const officialGrid = document.getElementById("official-grid");
+      officialGrid.innerHTML = "";
+
+      officialColors.forEach((color) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "official-card";
+        button.style.background = `linear-gradient(180deg, ${color.hex}, ${hslToHex(hexToHsl(color.hex)[0], clamp(hexToHsl(color.hex)[1] + 4), clamp(hexToHsl(color.hex)[2] - 8))})`;
+        button.dataset.hex = color.hex;
+        button.innerHTML = `
+          <small>Official</small>
+          <strong>${color.name}</strong>
+          <span>${color.hex}</span>
+        `;
+        button.addEventListener("click", () => {
+          setBaseColor(color.hex, color.name, color.description, true);
+        });
+        officialGrid.appendChild(button);
+      });
+    }
+
+    function createModeGrid() {
+      const modeGrid = document.getElementById("mode-grid");
+      modeGrid.innerHTML = "";
+
+      Object.entries(modeConfig).forEach(([key, config]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "mode-button";
+        button.dataset.mode = key;
+        button.innerHTML = `
+          <strong>${config.label}</strong>
+          <code>${config.code}</code>
+        `;
+        button.addEventListener("click", () => {
+          activeMode = key;
+          render();
+        });
+        modeGrid.appendChild(button);
+      });
+    }
+
+    function updateBaseMeta(hex) {
+      const official = officialColors.find((color) => color.hex === hex.toUpperCase());
+      const baseName = document.getElementById("base-name");
+      const baseHex = document.getElementById("base-hex");
+      const baseDescription = document.getElementById("base-description");
+
+      baseHex.textContent = hex.toUpperCase();
+
+      if (official) {
+        baseName.textContent = official.name;
+        baseDescription.textContent = official.description;
+      } else {
+        baseName.textContent = "Custom Color";
+        baseDescription.textContent = "직접 선택한 기준색으로 새로운 조합을 탐색하고 있습니다.";
+      }
+    }
+
+    function updateHeroPreview(colors) {
+      const preview = document.getElementById("hero-preview");
+      preview.innerHTML = "";
+
+      colors.forEach((color) => {
+        const chip = document.createElement("div");
+        chip.className = "hero-chip";
+        chip.style.background = color.hex;
+        preview.appendChild(chip);
+      });
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function renderPalette(colors) {
+      const palette = document.getElementById("palette");
+      palette.innerHTML = "";
+
+      colors.forEach((color) => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "swatch";
+        const contrast = getContrastColor(color.hex);
+        card.innerHTML = `
+          <div class="swatch-color" style="background:${color.hex}; color:${contrast};">
+            <span class="swatch-badge">${color.name}</span>
+            <span class="swatch-copy">클릭해서 복사</span>
+          </div>
+          <div class="swatch-body">
+            <code>${color.hex}</code>
+            <div class="swatch-name">${color.name}</div>
+            <div class="swatch-note">${color.note}</div>
+          </div>
+        `;
+
+        card.addEventListener("click", async () => {
+          const copied = await copyText(color.hex);
+          card.classList.add("copied");
+          const copyLabel = card.querySelector(".swatch-copy");
+          copyLabel.textContent = copied ? "복사 완료" : "복사 실패";
+
+          window.setTimeout(() => {
+            card.classList.remove("copied");
+            copyLabel.textContent = "클릭해서 복사";
+          }, 1200);
+        });
+
+        palette.appendChild(card);
+      });
+    }
+
+    function updateControls(hex) {
+      document.getElementById("base-color").value = hex;
+      document.querySelectorAll(".official-card").forEach((card) => {
+        card.classList.toggle("active", card.dataset.hex === hex.toUpperCase());
+      });
+      document.querySelectorAll(".mode-button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.mode === activeMode);
+      });
+      updateBaseMeta(hex);
+    }
+
+    function updateSummary() {
+      const config = modeConfig[activeMode];
+      document.getElementById("summary-title").textContent = config.summaryTitle;
+      document.getElementById("summary-copy").textContent = config.summaryCopy;
+      document.getElementById("mode-description").textContent = config.description;
+    }
+
+    function render() {
+      const hex = document.getElementById("base-color").value.toUpperCase();
+      const paletteColors = generatePalette(hex, activeMode);
+      updateControls(hex);
+      updateSummary();
+      updateHeroPreview(paletteColors);
+      renderPalette(paletteColors);
+    }
+
+    function setBaseColor(hex, name, description, fromOfficial = false) {
+      document.getElementById("base-color").value = hex;
+      if (!fromOfficial) {
+        document.getElementById("base-name").textContent = name || "Custom Color";
+        document.getElementById("base-description").textContent = description || "직접 선택한 기준색으로 새로운 조합을 탐색하고 있습니다.";
+      }
+      render();
+    }
+
+    function pickRandomOfficial() {
+      const current = document.getElementById("base-color").value.toUpperCase();
+      const candidates = officialColors.filter((color) => color.hex !== current);
+      const next = candidates[Math.floor(Math.random() * candidates.length)];
+      setBaseColor(next.hex, next.name, next.description, true);
+    }
+
+    document.getElementById("base-color").addEventListener("input", (event) => {
+      setBaseColor(event.target.value.toUpperCase());
+    });
+
+    document.getElementById("copy-all-button").addEventListener("click", async () => {
+      const hex = document.getElementById("base-color").value.toUpperCase();
+      const payload = generatePalette(hex, activeMode).map((color) => color.hex).join(", ");
+      const copied = await copyText(payload);
+      const button = document.getElementById("copy-all-button");
+      button.textContent = copied ? "전체 복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        button.textContent = "전체 HEX 복사";
+      }, 1200);
+    });
+
+    document.getElementById("shuffle-button").addEventListener("click", pickRandomOfficial);
+
+    createOfficialGrid();
+    createModeGrid();
+    render();
+  </script>
+</body>
+</html>
