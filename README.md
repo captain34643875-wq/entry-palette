@@ -8,4 +8,4 @@
 - HEX 코드 클릭 복사
 
 ## 사용
-https://captain34643875.github.io/entry-palette
+entry-palette.kro.kr/
